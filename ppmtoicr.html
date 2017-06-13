@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML><HEAD><TITLE>Ppmtoicr User Manual</TITLE></HEAD>
+<BODY>
+<H1>ppmtoicr</H1>
+Updated: 05 June 2015
+<BR>
+<A HREF="#index">Table Of Contents</A>
+
+<H2>NAME</H2>
+
+ppmtoicr - convert a PPM image into NCSA ICR format 
+
+<H2 id="synopsis">SYNOPSIS</H2>
+
+<B>ppmtoicr</B>
+
+[<B>-windowname</B> <I>name</I>]
+
+[<B>-expand</B> <I>expand</I>]
+
+[<B>-display</B> <I>display</I>]
+
+[<B>-rle</B>]
+
+[<I>ppmfile</I>]
+
+
+<H2 id="description">DESCRIPTION</H2>
+
+<p>This program is part of <a href="index.html">Netpbm</a>.
+
+<p><b>ppmtoicr</b> reads a PPM file as input.  Produces an NCSA Telnet
+Interactive Color Raster graphic file as output.
+
+If <I>ppmfile</I> is not supplied, <b>ppmtoicr</b> reads from Standard
+Input.
+
+<P>Interactive Color Raster (ICR) is a protocol for displaying raster
+graphics on workstation screens. The protocol is implemented in NCSA
+Telnet for the Macintosh version 2.3.  The ICR protocol shares
+characteristics of the Tektronix graphics terminal emulation protocol.
+For example, escape sequences are used to control the display.
+
+<P><b>ppmtoicr</b> will output the appropriate sequences to create a
+window of the dimensions of the input image, create a colormap of up
+to 256 colors on the display, then load the picture data into the
+window.
+
+<P>Note that there is no icrtoppm tool - this transformation is one
+way.
+
+
+<H2 id="options">OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-windowname</B> <I>name</I>
+
+<DD>Output will be displayed in <I>name</I> (Default is to use
+<I>ppmfile</I> or "untitled" if the input is from Standard
+Input).
+
+<DT><B>-expand</B> <I>expand</I>
+
+<DD>Output will be expanded on display by factor <I>expand</I> (For
+example, a value of 2 will cause four pixels to be displayed for every
+input pixel.)
+
+<DT><B>-display</B> <I>display</I>
+
+<DD>Output will be displayed on screen numbered <I>display</I>
+
+</DL>
+
+
+<H2 id="examples">EXAMPLES</H2>
+
+To display a PPM file named <b>ppmfile</b> using the protocol:
+
+<PRE>
+    ppmtoicr ppmfile
+</PRE>
+
+This will create a window named <I>ppmfile</I> on the display with the
+correct dimensions for <I>ppmfile</I>, create and download a colormap
+of up to 256 colors, and download the picture into the window.  You
+may achieve the same effect with the following sequence:
+
+<PRE>
+    ppmtoicr ppmfile &gt; filename
+    cat filename
+</PRE>
+
+<p>To display a GIF file using the protocol in a window titled after the
+input file, zoom the displayed image by a factor of 2, and run-length
+encode the data:
+
+<PRE>
+    giftopnm giffile | ppmtoicr -w giffile -r -e 2
+</PRE>
+
+<A NAME="lbAG">&nbsp;</A>
+<H2>LIMITATIONS</H2>
+
+<P>The protocol uses frequent fflush() calls to speed up display.  If
+you save the output to a file for later display via <B>cat</B>,
+<b>ppmtoicr</b> will draw much more slowly.  In either case,
+increasing the blocksize limit on the display will speed up
+transmission substantially.
+
+
+<H2 id="seealso">SEE ALSO</H2>
+
+<B><A HREF="ppm.html">ppm</A></B>
+
+<P>NCSA Telnet for the Macintosh, University of Illinois at
+Urbana-Champaign (1989)
+
+
+<H2 id="history">HISTORY</H2>
+
+<p>Until Netpbm 10.71 (June 2015), there was a <b>-rle</b> option documented,
+which was said to cause the output to use run length encoding compression.
+But because of a simple bug in option processing code, the option never had
+any effect.  And the compression code did not look like it worked anyway and
+would take a fair amount of work to fix.  Because it was unlikely anyone would
+ever use this program again, much less want to use run length encoding, we
+removed it from the documentation rather than fix the code.
+
+
+<H2 id="author">AUTHOR</H2>
+
+Copyright (C) 1990 by Kanthan Pillay (<A
+HREF="mailto:svpillay@Princeton.EDU">svpillay@Princeton.EDU</A>),
+Princeton University Computing and Information Technology.
+
+<HR>
+<H2 id="index">Table Of Contents</H2>
+<UL>
+<LI><A HREF="#synopsis">SYNOPSIS</A>
+<LI><A HREF="#description">DESCRIPTION</A>
+<LI><A HREF="#options">OPTIONS</A>
+<LI><A HREF="#examples">EXAMPLES</A>
+<LI><A HREF="#limitations">LIMITATIONS</A>
+<LI><A HREF="#seealso">SEE ALSO</A>
+<LI><A HREF="#history">HISTORY</A>
+<LI><A HREF="#author">AUTHOR</A>
+</UL>
+</BODY>
+</HTML>

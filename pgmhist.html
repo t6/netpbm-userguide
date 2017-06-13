@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML><HEAD><TITLE>Pgmhist User Manual</TITLE></HEAD>
+<BODY>
+<H1>pgmhist</H1>
+Updated: 2 March 2014
+<BR>
+<A HREF="#index">Table Of Contents</A>
+
+<H2>NAME</H2>
+
+pgmhist - print a histogram of the values in a PGM image
+
+<H2 id="synopsis">SYNOPSIS</H2>
+
+<B>pgmhist</B>
+
+[<b>-median</b>, <b>-quartile</b>, <b>-decile</b>]
+
+[<b>-forensic</b>]
+
+[<b>-machine</b>]
+
+[<I>pgmfile</I>]
+
+<H2 id="description">DESCRIPTION</H2>
+
+<p>This program is part of <a href="index.html">Netpbm</a>.
+
+<p><b>pgmhist</b> reads a PGM image as input and prints a histogram of the
+gray values or other gray value distribution metrics.
+
+
+<p>If you specify none of <b>-median</b>, <b>-quartile</b>, or <b>-decile</b>,
+<b>pgmhist</b> prints a complete histogram showing how many pixels of each
+possible gray value exist in the image.  Along with each gray value, it tells
+you how many pixels are more black and more white than it.
+
+<p><b>-median</b>, <b>-quartile</b>, and <b>-decile</b> options cause
+<b>pgmhist</b> instead to print the indicated quantiles.  Each quantile is a
+gray value that actually appears in the image (as opposed to fractional values
+that are sometimes used for quantiles).  The 3rd quartile is the least gray
+value for which at least 75% of the pixels are as dark or darker than it.
+The 4th quartile is the brightest gray value that appears in the image.
+
+
+<H2 id="options">OPTIONS</H2>
+
+You must specify exactly one of the ramp type options.
+<DL COMPACT>
+<DT><B>-median</B>
+<DD>
+
+<P>This option causes <b>pgmhist</b> to print the median gray value.
+
+<p>You may specify at most one of <b>-median</b>, <b>-quartile</b>, and
+<b>-decile</b>.
+
+<P>This option was new in Netpbm 10.61 (December 2012).
+
+<DT><B>-quartile</B>
+<DD>
+
+<P>This option causes <b>pgmhist</b> to print the four quartile gray values.
+
+<p>You may specify at most one of <b>-median</b>, <b>-quartile</b>, and
+<b>-decile</b>.
+
+<P>This option was new in Netpbm 10.61 (December 2012).
+
+<DT><B>-decile</B>
+<DD>
+     
+<P>This option causes <b>pgmhist</b> to print the ten decile gray values.
+
+<p>You may specify at most one of <b>-median</b>, <b>-quartile</b>, and
+<b>-decile</b>.
+
+<P>This option was new in Netpbm 10.61 (December 2012).
+
+<dt><b>-forensic</b><dd>
+
+<p>With this option, <b>pgmhist</b> works on images that contain invalid gray
+values.  Normally, like most Netpbm programs, <b>pgmhist</b> fails if it
+encounters a gray value greater than the maxval that the image declares.  The
+presence of such a value means the image is invalid, so the pixels have no
+meaning.  But with <b>-forensic</b>, <b>pgmhist</b> produces a histogram
+of the actual gray values without regard to maxval.  It issues messages
+summarizing the invalid pixels if there are any.
+
+<p>One use for this is to diagnose the problem that caused the invalid Netpbm
+image to exist.
+
+<p>There is a small exception to the ability of <b>pgmhist</b> to process
+invalid pixels even with <b>-forensic</b>: it can never process a gray value
+greater than 65535.  Note that in the rarely used Plain PGM format, it is
+possible for a number greater than that to appear where a gray value belongs.
+
+<p>This option was new in Netpbm 10.66 (March 2014).  But Netpbm older than
+10.66 does not properly reject invalid sample values, so the effect is very
+similar to <b>-forensic</b>.
+
+<DT><B>-machine</B>
+<DD>
+
+<p>This option causes <b>pgmhist</b> to print the information in a way
+easily digestible by a machine as opposed to a human.
+
+<p>For the quantiles, there is one line per quantile, in quantile order, and
+it consists of the gray value of the quantile in decimal with no leading
+zeroes.
+
+<p>For the full histogram output, it consists of one line per possible
+gray value (whether that value appears in the image or not), in order of
+the gray values.  The line consists of two tokens separated by a space.  The
+first is the gray value; the second is the number of pixels in the image that
+have that gray value.  Both are decimal numbers without leading zeroes.
+
+<P>This option was new in Netpbm 10.61 (December 2012).
+
+</DL>
+
+
+<H2 id="seealso">SEE ALSO</H2>
+
+<A HREF="pnmnorm.html">pnmnorm</A>,
+<A HREF="ppmhist.html">ppmhist</A>
+<A HREF="pgm.html">pgm</A>,
+
+<H2 id="author">AUTHOR</H2>
+
+Copyright (C) 1989 by Jef Poskanzer.
+
+<HR>
+<H2 id="index">Table Of Contents</H2>
+<UL>
+<LI><A HREF="#synopsis">SYNOPSIS</A>
+<LI><A HREF="#description">DESCRIPTION</A>
+<LI><A HREF="#seealso">SEE ALSO</A>
+<LI><A HREF="#author">AUTHOR</A>
+</UL>
+</BODY>
+</HTML>

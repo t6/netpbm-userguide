@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML><HEAD><TITLE>Ppmhist User Manual</TITLE></HEAD>
+<BODY>
+<H1>ppmhist</H1>
+Updated: 15 August 2015
+<BR>
+<A HREF="#index">Table Of Contents</A>
+
+<H2 id="name">NAME</H2>
+ppmhist - print a histogram of the colors in a PPM image
+
+<H2 id="synopsis">SYNOPSIS</H2>
+
+<B>ppmhist</B>
+[<B>-hexcolor</B> | <B>-float</B> | <B>-colorname</B> | <B>-map</B>]
+[<B>-nomap</B>]
+[<B>-noheader</B>]
+[<B>-sort=</B>{<B>frequency</B>,<B>rgb</B>}]
+[<b>-forensic</b>
+[<I>ppmfile</I>]
+
+<H2 id="description">DESCRIPTION</H2>
+
+<p>This program is part of <a href="index.html">Netpbm</a>.
+
+<p><b>ppmhist</b>reads a PPM image as input and generates a histogram
+of the colors in the image, i.e. a list of all the colors and how many
+pixels of each color are in the image.
+
+<h3 id="output">Output Format</h3>
+
+<p>The output is in one of two basic formats:  a report for humans
+and a PPM image for use by programs.  The PPM image is actually quite
+readable by humans too.
+
+<h4>Human Report</h4>
+
+<p>You get this format by specifying (or defaulting to) the
+<b>-nomap</b> option.
+
+<p>The format is one line for each color in the input image.
+
+<p>By default, there are two lines of column header at the top.  Use the
+<b>-noheader</b> option to suppress those lines.
+
+<p>In each line, <b>ppmhist</b> identifies the color by red, green,
+and blue components.  By default, it lists each of these in decimal,
+using the exact values that are in the PPM input.  So if the image has
+a maxval of 255, the numbers in the listing range from 0 to 255.  With
+the <b>-hexcolor</b> option, you can change these numbers to
+hexadecimal.  With the <b>-float</b> option, the numbers are
+fractional, adjusted to a maxval of 1.
+
+<p>Each line lists the luminosity of the color.  It is in decimal
+on the same scale as the rgb values (see above).
+
+<p>Each line lists the number of pixels in the image that have the color.
+This is in decimal.
+
+
+<h4>PPM Output</h4>
+
+<p>You get this format with the <b>-map</b> option.
+
+<p>The output file is a genuine PPM image, but it is PPM Plain format
+and contains comments so that it is not a lot different from the
+human report described above.
+
+<p>As a PPM image, it can be useful as input to other programs that
+need some kind of palette.  The image is a single row with one
+column for each distinct color in the image.
+
+<p>The function of PPM output is essentially the same as the output of
+<b>pnmcolormap all</b>.  <b>ppmhist</b> is much older than <b>pnmcolormap</b>.
+
+
+<H2 id="options">OPTIONS</H2>
+
+<DL COMPACT>
+
+<DT><B>-sort=</B>{<B>frequency</B>,<B>rgb</B>}
+
+<DD>The <B>-sort</B> option determines the order in which the colors
+are listed in the output.  <B>frequency</B> means to list them in
+order of how pixels in the input image have the color, with the most
+represented colors first.  <B>rgb</B> means to sort them first by the
+intensity of the red component of the color, then of the green, then of
+the blue, with the least intense first.  
+
+<P>The default is <B>frequency</B>.
+
+<DT><B>-hexcolor</B>
+
+<DD>Print the color components in hexadecimal.  See <a href="#output">output
+format</a>.
+
+<p>You may not specify this option along with <b>-float</b> or <b>map</b>.
+
+<DT><B>-float</B>
+
+<DD>Print the color components and the luminosity as floating point
+numbers in the range [0,1].  See <a href="#output">output format</a>.
+
+<p>You may not specify this option along with <b>-hexcolor</b> or <b>map</b>.
+
+<p>This option was added in Netpbm 10.19 (November 2003).
+
+<DT><B>-map</B>
+
+<DD>Generates a PPM file of the colormap for the image, with the
+color histogram as comments.  See <a href="#output">output format</a>.
+
+<p>You may not specify this option along with <b>-float</b> or <b>hexcolor</b>.
+
+<DT><B>-nomap</B>
+
+<DD>
+Generates the histogram for human reading.  This is the default.
+
+<DT><B>-colorname</b>
+
+<dd>Add the color name to the output.  This is the name from the <a
+href="libppm.html#rgb.txt">system color dictionary</a>.  If the exact
+color is not in the color dictionary, it is the closest color that is
+in the dictionary and is preceded by a '*'.  If you don't have a 
+system color dictionary, the program fails.
+
+<p>This option was added in Netpbm 10.10 (October 2002).
+
+<DT><B>-noheader</B>
+
+<DD>Do not print the column headings.
+
+<dt><b>-forensic</b><dd>
+
+<p>With this option, <b>ppmhist</b> works on images that contain invalid sample
+values.  Normally, like most Netpbm programs, <b>ppmhist</b> fails if it
+encounters a sample value greater than the maxval that the image declares.  The
+presence of such a value means the image is invalid, so the pixels have no
+meaning.  But with <b>-forensic</b>, <b>ppmhist</b> produces a histogram
+of the actual sample values without regard to maxval.  It issues messages
+summarizing the invalid pixels if there are any.
+
+<p>One use for this is to diagnose the problem that caused the invalid Netpbm
+image to exist.
+
+<p>There is a small exception to the ability of <b>ppmhist</b> to process
+invalid pixels even with <b>-forensic</b>: it can never process a sample value
+greater than 65535.  Note that in the rarely used Plain PPM format, it is
+possible for a number greater than that to appear where a sample value
+belongs.
+
+<p>This option was new in Netpbm 10.66 (March 2014).  But Netpbm older than
+10.66 does not properly reject invalid sample values, so the effect is very
+similar to <b>-forensic</b>.
+
+</DL>
+
+<H2 id="seealso">SEE ALSO</H2>
+
+<B><A HREF="ppm.html">ppm</A></B>,
+
+<B><A HREF="pgmhist.html">pgmhist</A></B>,
+
+<B><A HREF="pnmcolormap.html">pnmcolormap</A></B>,
+
+<B><A HREF="pnmhistmap.html">pnmhistmap</A></B>,
+
+<B><A HREF="ppmchange.html">ppmchange</A></B>
+
+<H2 id="author">AUTHOR</H2>
+
+Copyright (C) 1989 by Jef Poskanzer.
+
+<HR>
+<H2 id="index">Table Of Contents</H2>
+<UL>
+<LI><A HREF="#synopsis">SYNOPSIS</A>
+<LI><A HREF="#description">DESCRIPTION</A>
+  <ul>
+  <li><a href="#output">Output Format</a>  
+  </ul>
+<LI><A HREF="#options">OPTIONS</A>
+<LI><A HREF="#seealso">SEE ALSO</A>
+<LI><A HREF="#author">AUTHOR</A>
+</UL>
+</BODY>
+</HTML>

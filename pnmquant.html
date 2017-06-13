@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML><HEAD><TITLE>Pnmquant User Manual</TITLE></HEAD>
+<BODY>
+<H1>pnmquant</H1>
+Updated: 09 April 2013
+<BR>
+<A HREF="#index">Table Of Contents</A>
+
+<H2>NAME</H2>
+pnmquant - quantize the colors in a Netpbm image to a smaller set
+
+<H2 id="synopsis">SYNOPSIS</H2>
+
+<B>pnmquant</B>
+[<B>-center</B>|<B>-meancolor</B>|<B>-meanpixel</B>]
+[<B>-floyd</B>|<B>-fs</B>]
+[<B>-nofloyd</B>|<B>-nofs</B>]
+[<B>-spreadbrightness</B>|<B>-spreadluminosity</B>]
+<I>ncolors</I> [<I>pnmfile</I>]
+
+<P>All options can be abbreviated to their shortest unique prefix.  You
+may use two hyphens instead of one to designate an option.  You may
+use either white space or equals signs between an option name and its
+value.
+
+
+<H2 id="description">DESCRIPTION</H2>
+
+<p>This program is part of <a href="index.html">Netpbm</a>.
+
+<p><b>pnmquant</b> reads a PNM image as input.  It chooses <I>ncolors</I>
+colors to best represent the image, maps the existing colors
+to the new ones, and writes a PNM image as output.
+
+<P>This program is simply a combination of <B>pnmcolormap</B> and
+<B>pnmremap</B>, where the colors of the input are remapped using a
+color map which is generated from the colors in that same input.  The
+options have the same meaning as in those programs.  See their
+documentation to understand <B>pnmquant</B>.
+
+<P>It is much faster to call <B>pnmcolormap</B> and <B>pnmremap</B>
+directly than to run <B>pnmquant</B>.  You save the overhead of the
+Perl interpreter and creating two extra processes.  <B>pnmquant</B> is
+just a convenience.
+
+<p>Here is an example of the relationship between the programs:
+
+<p>This:
+
+<pre>
+<kbd>
+    $ pnmquant 256 myimage.pnm &gt;/tmp/colormap.pnm &gt;myimage256.pnm
+</kbd>
+</pre>
+
+<p>does essentially this:
+
+<pre>
+<kbd>
+    $ pnmcolormap 256 myimage.pnm &gt;/tmp/colormap.pnm
+    $ pnmremap -mapfile=/tmp/colormap.pnm myimage.pnm &gt;myimage256.pnm
+</kbd>
+</pre>
+
+<p><b>pnmquant</b> did not exist before Netpbm 9.21 (January 2001).
+Before that, <b>ppmquant</b> did the same thing, but only on PPM
+images.  <b>ppmquant</b> continues to exist, but is only a front end
+(for name compatibility) to <b>pnmquant</b>.
+
+<H2 id="seealso">SEE ALSO</H2>
+
+<B><A HREF="pnmcolormap.html">pnmcolormap</A></B>,
+<B><A HREF="pnmremap.html">pnmremap</A></B>,
+<B><A HREF="ppmquantall.html">ppmquantall</A></B>,
+<B><A HREF="pamdepth.html">pamdepth</A></B>,
+<B><A HREF="ppmdither.html">ppmdither</A></B>,
+<B><A HREF="ppmquant.html">ppmquant</A></B>,
+<B><A HREF="pnm.html">pnm</A></B>
+
+<HR>
+<H2 id="index">Table Of Contents</H2>
+<UL>
+<LI><A HREF="#synopsis">SYNOPSIS</A>
+<LI><A HREF="#description">DESCRIPTION</A>
+<LI><A HREF="#seealso">SEE ALSO</A>
+</UL>
+</BODY>
+</HTML>

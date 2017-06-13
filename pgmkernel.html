@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML><HEAD><TITLE>Pgmkernel User Manual</TITLE></HEAD>
+<BODY>
+<H1>pgmkernel</H1>
+Updated: 19 December 2013
+<BR>
+<A HREF="#index">Table Contents</A>
+
+<H2>NAME</H2>
+
+pgmkernel - generate a convolution kernel
+
+<H2 id="synopsis">SYNOPSIS</H2>
+
+<p>
+<B>pgmkernel</B>
+[<B>-weight=</B><I>number</I>]
+[<b>-maxval=</b>] {<I>size</I> | <i>width</i> <i>height</i>}
+
+<P>Minimum unique abbreviation of option is acceptable.  You may use double
+hyphens instead of single hyphen to denote options.  You may use white
+space in place of the equals sign to separate an option name from its value.
+
+
+<H2 id="description">DESCRIPTION</H2>
+
+<p>This program is part of <a href="index.html">Netpbm</a>.
+
+<p><b>pgmkernel</b> generates a convolution kernel that you can use
+with <b>pnmconvol</b>.  The kernel is one where the weight of each location
+is inversely proportional to its distance from the center of the kernel.
+
+<p><b>pgmkernel</b> generates a PGM image of width and height <I>size</I>
+if you specify one argument, or width <i>width</i> and height <i>height</i>
+if you specify two arguments.
+
+<p><b>pgmkernel</b> computes the convolution function K as follows.
+
+<blockquote>
+K(i,j) = 1 / ( 1 + w * sqrt(i^2 + j^2)) 
+</blockquote>
+
+where <I>w</I> is a coefficient specified via the <b>-weight</b>
+option.  <i>i</i> and <i>j</i> are measured in pixels.  K is zero
+everywhere beyond the specified kernel width and height.
+
+<p>The sample values in the PGM output have this value scaled and biased using
+the protocol <b>pnmconvol</b> specifies for representing the real numbers K
+in PGM.
+
+
+<H2 id="options">OPTIONS</H2>
+
+<dl>
+<dt><b>-weight=</b><i>number</i>
+<dd>The distance from the center is weighted by this; a higher number means
+the value falls off more quickly as you go away from the center.
+<p>
+This must be a positive real number.
+<p>
+The default is 6.0.
+
+<dt><b>-maxval=</b><i>maxval</i>
+
+<dd>The maxval for the PGM kernel.
+<p>Default is 255.
+
+<p>This option was new in Netpbm 10.65 (December 2013).  Before that, the
+maxval is always 255.
+    
+
+</dl>
+
+<h2 id="limitations">LIMITATIONS</H2>
+
+<P>The computation time is proportional to <I>width</I>*<I>height</I>.
+This increases rapidly with the increase of the kernel size.  A better
+approach could be using a FFT in these cases.
+
+<h2 id="history">HISTORY</h2>
+
+<p>Before Netpbm 10.65 (December 2013), the output was always in
+Plain (text) PGM format.  (Now, like standard Netpbm programs, the default
+is raw PGM and you can get Plain PGM with a <b>-plain</b> option).
+
+<p>Before Netpbm 10.65 (December 2013), this manual said negative values
+for <b>-weight</b> were valid (as long as they were greater than -1.0).  But
+the program never worked with negative numbers and it isn't clear that the
+result would be useful, so <b>-weight</b> is now required to be nonnegative
+and the program fails gracefully if you specify a negative value.
+
+<H2 id="seealso">SEE ALSO</H2>
+
+<A HREF="pnmconvol.html">pnmconvol</A>,
+<A HREF="pnmsmooth.html">pnmsmooth</A>
+<A HREF="pamgauss.html">pamgauss</A>
+<A HREF="pgm.html">pgm</A>
+
+
+<H2 id="author">AUTHOR</H2>
+
+Alberto Accomazzi (<A
+HREF="mailto:alberto@cfa.harvard.edu">alberto@cfa.harvard.edu</A>).
+
+
+<HR>
+<H2 id="index">Table Of Contents</H2>
+<UL>
+<LI><A HREF="#synopsis">SYNOPSIS</A>
+<LI><A HREF="#description">DESCRIPTION</A>
+<LI><A HREF="#options">OPTIONS</A>
+<LI><A HREF="#limitations">LIMITATIONS</A>
+<LI><A HREF="#history">HISTORY</A>
+<LI><A HREF="#seealso">SEE ALSO</A>
+<LI><A HREF="#author">AUTHOR</A>
+</UL>
+</BODY>
+</HTML>

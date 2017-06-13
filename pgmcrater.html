@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML><HEAD><TITLE>Pgmcrater User Manual</TITLE></HEAD>
+<BODY>
+<H1>pgmcrater</H1>
+Updated: 26 July 2014
+<BR>
+<A HREF="#index">Table Of Contents</A>
+
+<H2 id="name">NAME</H2>
+pgmcrater - create cratered terrain by fractal forgery
+
+<H2 id="synopsis">SYNOPSIS</H2>
+
+<B>pgmcrater</B>
+
+[<B>-number</B> <I>n</I>]
+
+[<B>-height</B>|<B>-ysize</B> <I>s</I>]
+
+[<B>-width</B>|<B>-xsize</B> <I>s</I>]
+
+[<B>-gamma</B> <I>g</I>]
+
+[<b>-randomseed=</b><i>integer</i>]
+
+<P>
+All options can be abbreviated to their shortest unique prefix.  You
+may use two hyphens instead of one to designate an option.  You may
+use either white space or equals signs between an option name and its
+value.
+
+
+<H2 id="description">DESCRIPTION</H2>
+
+<p>This program is part of <a href="index.html">Netpbm</a>.
+
+<p><b>pgmcrater</b> is obsolete.  All it does now is invoke
+<b>pamcrater</b>, <b>pamshadedrelief</b>, and <b>pamtopnm</b>.  You should use
+those programs in any new application, or if you are modifying an old program
+or process that does not have to work with a version of Netpbm before 10.68
+(September 2014).  <b>pgmcrater</b> exists only for backward compatibility.
+
+<p>The combination of the three programs mentioned above performs the same
+function as traditional <b>pgmcrater</b>.
+
+<p><b>pgmcrater</b>'s <b>-number</b>, <b>-height</b>, <b>-width</b>,
+and <b>-randomseed</b> options are equivalent to the options of the same name
+on <b>pamcrater</b>.
+
+<P><b>pgmcrater</b>'s <b>-gamma</b> option is equivalent to
+the option of the same name on <b>pamshadedrelief</b>.
+
+<P><B>pgmcrater</B>'s <b>-ysize</b> option is identical to <b>-height</b>;
+<b>-xsize</b> is identical to <b>-width</b>.
+
+<p>Note: The former <b>pgmcrater</b> code was split into <b>pamcrater</b>
+and <b>pamshadedrelief</b>.  The reason for the split is that having separate
+programs is more consistent with Netpbm's building block philosophy.  It is
+possible the separate components can be used in other applications.
+
+
+<H2 id="seealso">SEE ALSO</H2>
+<B><A HREF="pamcrater.html">pamcrater</A></B>,
+<B><A HREF="pamshadedrelief.html">pamshadedrelief</A></B>,
+<B><A HREF="pamtopnm.html">pamtopnm</A></B>,
+
+<H2 id="index">Table Of Contents</H2>
+<UL>
+<LI><A HREF="#synopsis">SYNOPSIS</A>
+<LI><A HREF="#description">DESCRIPTION</A>
+<LI><A HREF="#seealso">SEE ALSO</A>
+</UL>
+</BODY>
+</HTML>
