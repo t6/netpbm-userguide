@@ -1,0 +1,771 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>Pamtris User Manual</title></head>
+<body>
+
+<h1>pamtris</h1>
+Updated: 02 October 2018
+<br>
+<a href="#index">Table Of Contents</a>
+
+<h2>NAME</h2>
+pamtris - triangle rasterizer featuring perspective-correct
+interpolation of generic vertex attributes and depth buffering
+
+<h2 id="synopsis">SYNOPSIS</h2>
+
+<b>pamtris</b>
+
+<b>-width=</b><i>width</i>
+
+<b>-height=</b><i>height</i>
+
+{&nbsp;<b>-num_attribs=</b><i>attributes_per_vertex</i>
+[&nbsp;<b>-tupletype=</b><i>tupletype</i>&nbsp;]
+| <b>-rgb</b>
+| <b>-grayscale</b>&nbsp;}
+
+[&nbsp;<b>-maxval=</b><i>maxval</i>&nbsp;]
+
+
+<p>All options can be abbreviated to their shortest unique prefix.
+You may use two hyphens instead of one to designate an option.  You
+may use either white space or an equals sign between an option name
+and its value.</p>
+
+<h2 id="description">DESCRIPTION</h2>
+
+<p>This program is part of <a href="index.html">Netpbm</a>.
+
+</p><p><b>pamtris</b> can be used to draw a great variety of 2D and 3D graphics by
+composing arbitrarily complex pictures out of separate triangles, triangle
+strips and triangle fans. The program reads instructions written in a simple
+command script notation from Standard Input and outputs its results
+as a (potentially multi-image) PAM stream on Standard Output.</p>
+
+<p>For example, the following input</p>
+
+<pre>
+  <code>
+      mode fan
+      attribs 0 128 0
+      vertex 0 0 1
+      attribs 0 0 128
+      vertex 200 0 1
+      attribs 50 20 103
+      vertex 190 61 1
+      attribs 100 40 78
+      vertex 161 117 1
+      attribs 150 60 53
+      vertex 117 161 1
+      attribs 200 80 28
+      vertex 61 190 1
+      attribs 250 100 3
+      vertex 0 200 1
+      print
+    </code>
+  </pre>
+  
+<p>produces this:</p> 
+
+<img src="pamtris_fan.png" alt="Example Pamtris output for fan mode">
+  
+<p>The input file gives triangle data by setting the appropriate drawing mode,
+if necessary, and then providing a list of vertices. Each vertex is also
+associated with a list of up to 20 "attributes," which are integer
+values between 0 and a given maxval. In the most common usage, you use
+<b>pamtris</b> to draw a visual image and a vertex has three attributes, which
+are an RGB specification of a color.  Such attribute lists may be provided on
+a per-vertex basis.</p>
+
+<p>Before images can be effectively written to Standard Output, <b>pamtris</b>
+gradually rasterizes them on an internal frame buffer which consists of an
+"image buffer" and a "depth buffer." The image buffer consists of a sequence
+of <i>height</i> rows containing a sequence of <i>width</i> tuples. There is
+one sample for each vertex attribute in every tuple plus an opacity (alpha)
+sample. Each tuple in the image buffer is also associated with an integer
+depth in the depth buffer, which determines whether subsequent drawing
+operations affect that particular tuple or not. This provides a way of
+depth-sorting graphical objects which is adequate for many purposes in 2D
+and 3D computer graphics. One prominent shortcoming of such an approach
+to depth-sorting, however, is that it does not automatically work with
+objects which are intended to appear "translucent," therefore requiring
+more elaborate strategies to incorporate said objects into pictures
+generated using this technique.</p>
+
+<p>The opacity sample is the last sample of the tuple.  <b>pamtris</b>
+manipulates opacity internally and for any tuple it is always either 0 or the
+maxval.  The program does not provide the user direct control over the alpha
+image plane.</p>
+
+<p><b>pamtris</b> rasterizes triangles by approximating their visible area as
+a collection of tuples at particular positions in the frame buffer, and to
+each sample of every such tuple it assigns a value which is a
+perspective-correct interpolation between the values of the corresponding
+attribute for each vertex of the triangle. Whenever a tuple within the area
+of the frame buffer is produced, it is written to the corresponding position
+in the frame buffer if and only if it passes a depth test.  This test works
+as follows: the depth value of every incoming tuple (which is itself an
+interpolation between the Z-coordinates of the vertices of the
+corresponding triangle) is compared against the value in the corresponding
+position in the depth buffer. If the depth value of the incoming tuple
+equals or is smaller than the depth value already present in said position in
+the depth buffer, the following happens.</p>
+
+<ol>
+<li>Every sample <i>i</i>, where 0 &#8804; <i>i</i> &lt; <i>num_attribs</i>,
+of the tuple in the corresponding position in the image buffer is set to equal
+the value of the respective sample of the incoming tuple; and the alpha
+sample (the last one) is updated to the <i>maxval</i>;</li>
+
+<li>The depth value in the corresponding position in the depth buffer is
+updated to a depth value directly proportional to that of the incoming
+tuple.</li>
+</ol>
+
+<p>Otherwise, that particular tuple effects no change at all in the frame
+buffer.</p>
+
+<p>The frame buffer is initially set so that all samples in every tuple of the
+image buffer contain the value 0, and all entries in the depth buffer contain
+the maximum permitted depth value.</p>
+
+<p>The attributes' values, and therefore the samples in the output
+PAM images, have no fixed interpretation ascribed to them (except for the
+last image plane, which is deliberately supposed to represent tuple opacity
+information); one may ascribe any suitable meaning to them, such as that of
+colors, texture coordinates, surface normals, light interaction
+characteristics, texture influence coefficients for multi-texturing, etc.</p>
+
+
+<h2 id="examples">EXAMPLES</h2>
+
+<h3 id="examples_fan">Fan Mode</h3>
+
+<p>The following command generates the image from the fan mode example at the
+top of the <a href="#description">DESCRIPTION</a> section. If the file
+<b>fan.tris</b> contains that code, you could process it with:
+
+<pre>
+  <kbd>
+    $ pamtris -height=200 -width=200 -rgb &lt;fan.tris &gt;fan.pam
+  </kbd>
+</pre>
+  
+<h3 id="examples_strip">Strip Mode</h3>
+
+<p>The following is an example of strip mode:</p>
+
+<pre>
+  <code>
+      mode strip
+      attribs 255 0 0   # red
+      vertex   0 200 1
+      vertex  50   0 1
+      attribs 0 0 0     # black
+      vertex 100 200 1
+      attribs 0 205 205 # cyan
+      vertex 150 0 1
+      attribs 0 0 255   # blue
+      vertex 200 200 1
+      vertex 250   0 1
+      print
+    </code>
+  </pre>
+
+<p>Save the above code in a file named <i>strip.tris</i> (for instance)
+and process it with:</p>
+  
+<pre>
+  <kbd>
+    $ pamtris -height=200 -width=200 -rgb &lt;strip.tris &gt;strip.pam
+  </kbd>
+</pre>
+  
+to yield:
+<p>
+<img src="pamtris_strip.png" alt="Example Pamtris output for strip mode">
+
+<h3 id="examples_triangles">Triangle Mode</h3>
+
+<p>The following is an example of triangle mode:
+
+<pre>
+  <code>
+      # yellow square
+      mode strip
+      attrib 155 155 0
+      vertex 50  50 100
+      vertex 50 200 100 
+      vertex 200 50 100
+      vertex 200 200 100
+      
+      # blue triangle
+      mode triangles
+      attrib 0 205 205
+      vertex 20 125 70
+      attrib 0 0 140
+      vertex 230  70 120 # Change "120" and see what happens
+      vertex 230 180 120 #
+      print
+    </code>
+  </pre>
+
+<p>Save the above code in a file named <b>pierce.tris</b> (for instance)
+and process it with:</p>
+  
+<pre>
+  <kbd>
+    $ pamtris -height=200 -width=200 -rgb &lt;pierce.tris &gt;pierce.pam
+  </kbd>
+</pre>
+
+to yield:
+<p>
+<img src="pamtris_pierce.png" alt="Example Pamtris output for triangle mode">
+
+
+<h3 id="pamtris_c">Meta-programming</h3>
+
+<p>The <b>pamtris</b> command language is much too rudimentary to be used
+directly for any serious drawing; you will probably want to use a general
+purpose programming language to generate a temporary <b>pamtris</b> command
+file.
+
+</p><p>For example, the following C program generates <b>pamtris</b> instructions
+to produce a picture of NAMCO's Pac-Man.  It generates dozens of
+<b>vertex</b> commands tracing around the perimeter of a circle.</p>
+
+<img alt="Pac-Man" src="pamtris_pacman.png">
+
+<pre>
+  <code>
+/* ------------------------------------
+ * width       = 256
+ * height      = 256
+ * num_attribs = 3
+ * tupletyple  = RGB_ALPHA
+ * --------------------------------- */
+
+#include &lt;stdio.h&gt;
+#include &lt;math.h&gt;
+
+#define PI      3.141592
+#define PI2     (2.0 * PI)
+
+#define WIDTH   256
+#define HEIGHT  WIDTH
+
+int main()
+{
+        int const center_x = 0.5 * WIDTH;
+        int const center_y = 0.5 * HEIGHT;
+
+        double const radius = 0.48 * WIDTH;
+        
+        int const sectors = round(0.125 * PI * radius) + 1;
+
+        puts("mode triangles");
+
+        printf("vertex %d %d 0\n", center_x, center_y);
+        printf("vertex %d %d 0\n", WIDTH, 0);
+        printf("vertex %d %d 0\n", WIDTH, HEIGHT);
+
+        puts("clear image");
+        puts("mode fan");
+        puts("attribs 255 255 0");
+        printf("vertex %d %d 1\n", center_x, center_y);
+        puts("attribs 255 128 0");
+
+        double const angle_factor = PI2 / (sectors - 1);
+
+        unsigned int i;
+
+        for (i = 0; i &lt; sectors; i++)
+        {
+                double const angle = angle_factor * i;
+                int const x = round(cos(angle) * radius + center_x);
+                int const y = round(sin(angle) * radius + center_y);
+
+                printf("vertex %d %d 1\n", x, y);
+        }
+
+        puts("print");
+
+        return 0;
+}
+</code>
+</pre>
+
+<p>Below are two other examples which, although not as trivial, demonstrate
+what else can be feasibly obtained through this meta-programming approach,
+especially when combining <b>pamtris</b> with other Netpbm programs (Earth
+texture from
+<a href="https://visibleearth.nasa.gov/view.php?id=73580">nasa.gov</a>):
+
+<img alt="Isometric Rainbow Waves" src="pamtris_isowaves.gif">
+<img alt="Rotating Earth" src="pamtris_earth.gif">
+
+
+<h2 id="options">OPTIONS</h2>
+
+<dl compact="compact">
+<dt><b>-width=</b><i>width</i></dt>
+<dd>Sets the width of the internal frame buffer and, by extension, of the
+output PAM images, given in number of columns. This must be an integer in the
+closed range [1, 8192].
+
+<p>This option is mandatory.</p></dd>
+
+<dt><b>-height=</b><i>height</i></dt>
+<dd>This is the height of the internal frame buffer and, by extension, of the
+output PAM images, given in number of rows. This must be an integer in
+the closed range [1, 8192].
+
+<p>This option is mandatory.</p></dd>
+
+<dt><b>-num_attribs=</b><i>attributes_per_vertex</i></dt>
+<dd>This is the number of attributes per vertex and, by extension, the depth
+of the output PAM images, which is equal to this value plus one (to accomodate
+the alpha plane). The argument must be an integer in the closed range [1, 20].
+
+<p>The input instruction sequence may override this with a <b>reset</b>
+command.</p>
+
+<p>You must specify exactly one of <b>-num_attribs</b>, <b>-rgb</b>,
+and <b>-grayscale</b>.
+
+
+</p></dd><dt><b>-tupletype=</b><i>tupletype</i></dt>
+<dd>This is the tuple type for the output PAM images. The argument is a string
+which may be no longer than 255 characters.
+
+<p>The input instruction sequence may override this with a <b>reset</b>
+command.
+
+<p>The default is an empty (null) string.</p>
+
+<p>This option cannot be specified together with  <b>-rgb</b> or
+<b>-grayscale</b>.</p>
+
+</dd>
+
+<dt><b>-rgb</b></dt>
+<dd>
+This is a convenience option which simply serves as an alias for
+<b>-num_attribs=</b>3 <b>-tupletype=</b>RGB_ALPHA. In other words, this option
+is a quick way to specify that you are going to use <b>pamtris</b> to draw
+RGB(_ALPHA) color images directly, and the three vertex attributes are the
+red, green and blue levels of the color associated with the vertex, in that
+order.
+
+<p>The input instruction sequence may override this with a <b>reset</b>
+command.</p>
+
+<p>You must specify exactly one of <b>-num_attribs</b>, <b>-rgb</b>,
+and <b>-grayscale</b>.
+
+<p>This option was new in Netpbm 10.85 (December 2018).
+
+<dt><b>-grayscale</b></dt>
+<dd>
+Another convenience option, similar to <b>-rgb</b>; except this one is an
+alias for <b>-num_attribs=</b>1 <b>-tupletype=GRAYSCALE_ALPHA</b>. The one
+vertex attribute is the gray level associated with the vertex.
+
+<p>The input instruction sequence may override this with a <b>reset</b>
+command.</p>
+
+<p>You must specify exactly one of <b>-num_attribs</b>, <b>-rgb</b>,
+and <b>-grayscale</b>.
+
+<p>This option was new in Netpbm 10.85 (December 2018).
+
+<dt><b>-maxval=</b><i>maxval</i></dt>
+<dd>Sets the maxval of the output PAM images, which is also the maximum
+permitted value for each vertex attribute. This must be an integer in the
+closed range [1, 65535].
+
+<p>The default value is 255.
+
+</p><p>The input instruction sequence may override this with a
+<b>reset</b> command.
+</dd>
+</dl>
+
+<h2 id="instruction_code">INSTRUCTION CODE</h2>
+
+<p>The input for <b>pamtris</b> consists of a sequence of text lines sent to
+it through the Standard Input mechanism.</p>
+
+<p>Empty lines or lines that contain only white space characters are called
+blank lines and are ignored.</p>
+
+<p>When a <b>#</b> occurs anywhere in a line, <b>pamtris</b> ignores it
+along with every character after it. In other words, everything from the
+<b>#</b> until the end of the line receives the same treatment as white
+space.</p>
+
+<p>Lines which are not blank must contain a sequence of strings separated by
+white space, called tokens.  The first such token must be one of the
+commands recognized by <b>pamtris</b>, and all further tokens are interpreted
+as the arguments for that command, if it takes any. When an insufficient
+number of arguments is provided for a command, the line is considered invalid
+and is given the same treatment as a blank line. The same happens when an
+out of range argument or one of a kind different of what is expected is given
+(for example, when you give a string of letters where a numerical value is
+expected), or when an unrecognized command/argument is found. When a number of
+arguments greater than that required for a particular command is provided,
+only the portion of the line up to the last required argument is considered
+and any further tokens are ignored.</p>
+
+<p><b>pamtris</b> is case-insensitive. That is, <b>mode</b>, <b>MODE</b>,
+<b>mODe</b>, etc. are all treated the same way.</p>
+
+<p>The commands recognized by <b>pamtris</b> are:</p>
+<dl>
+<dt><b>mode</b></dt>
+<dt><b>attribs</b></dt>
+<dt><b>vertex</b></dt>
+<dt><b>print</b></dt>
+<dt><b>clear</b></dt>
+<dt><b>reset</b></dt>
+<dt><b>quit</b></dt>
+</dl>
+
+<p>You may use a minimum unique abbreviation of a command name.  You may use
+an exclamation mark (<b>!</b>) in place of the <b>print</b> command name and an
+asterisk (<b>*</b>) in place of <b>clear</b>.
+
+</p><p>The functions of the commands are as follows.
+
+</p><dl>
+<dt><b>mode</b> { triangles | strip | fan }</dt>
+<dd>
+<p>This makes <b>pamtris</b> enter a new drawing mode. The argument is a word
+which specifies the mode to change to. Instead of a full argument name, it is
+permissible to provide a minimum unique abbreviation, which has the same
+effect. The drawing mode will remain the same until the next <b>mode</b>
+command is given.</p>
+
+<p>This command also resets the current vertex list, which is
+(re)initialized to an empty state after the command is executed. One may add
+new vertices to this list through successive invocations of the <b>vertex</b>
+command (see below). You do not have to worry about providing "too many"
+vertices, since the vertex list is virtualized: <b>pamtris</b> maintains only
+the state pertaining to three vertices at any one time. The current vertex
+list is initially empty.</p>
+
+<p>It is permissible to give <b>pamtris</b> a <b>mode</b> command which
+instructs it to enter a drawing mode it is currently already in. One might
+use this approach to reset the current vertex list without changing the
+current drawing mode.</p>
+
+<p><b>Regardless of the current drawing mode, a new triangle is immediately
+rasterized into the frame buffer as soon as the necessary vertices for it are
+provided through the current vertex list.</b></p>
+
+<p>In the following descriptions of each drawing mode, triangles' and
+vertices' indices (ordinal numbers) are 0-based.</p>
+
+<p>The <b>triangles</b> argument instructs <b>pamtris</b> to enter the
+"TRIANGLES" drawing mode. While in this mode, a series of separate triangles
+is constructed. Every three vertices pushed into the current vertex list
+specify a new triangle.  Formally, this means that every
+<i>N<sup>th</sup></i> triangle is specified by vertices 3 * <i>N</i>, 3
+* <i>N</i> + 1, and 3 * <i>N</i> + 2. This is the default initial mode and is
+therefore not required to be set explicitly before drawing any triangles.
+</p>
+
+<p>The <b>strip</b> argument instructs <b>pamtris</b> to enter the "STRIP"
+drawing mode.  While in this mode, <b>pamtris</b> constructs a "triangle
+strip." That is, the first three vertices pushed into the current vertex
+list specify the first triangle, and every new vertex pushed after that
+specifies, together with the previous two, the next triangle. Formally, this
+means that every <i>N</i><sup>th</sup> triangle is specified by vertices
+<i>N</i>, <i>N</i> + 1, and <i>N</i> + 2.</p>
+
+<p>The <b>fan</b> argument instructs <b>pamtris</b> to enter the "FAN" 
+drawing mode.  While in this mode, a so-called "triangle fan" is constructed.
+That is, the first three vertices pushed into the current vertex list specify
+the first triangle, and every new vertex pushed after that specifies, together
+with the previous vertex and the first one, the next triangle. Formally, this
+means that every <i>N</i><sup>th</sup> triangle is specified by vertices
+<i>0</i>, <i>N</i> + 1, and <i>N</i> + 2.</p> 
+</dd>
+
+<dt>
+<b>attribs</b> <i>a<sub>0</sub></i> ... <i>a<sub>num_attribs - 1</sub></i>
+</dt>
+<dd>
+<p>This updates the current attribute values list. This command takes as
+arguments a sequence of <i>num_attribs</i> integers which represent the
+values of the attributes to be associated with the next vertex. This
+sequence of values is the just mentioned "current attribute values list."
+
+<p>Each <i>i<sup>th</sup></i> argument, where 0 &#8804; <i>i</i> &lt;
+<i>num_attribs</i>, indicates the value to be assigned to the
+<i>i</i><sup>th</sup> attribute of the current attribute values list. All
+arguments must be integer values in the closed range [0, <i>maxval</i>].
+If a number of arguments less than the current value of <i>num_attribs</i>
+is given, the command is considered invalid and is therefore ignored.</p>
+
+<p>The current attribute values list remains unchanged until the next valid
+<b>attribs</b> or <b>reset</b> command is given. The <b>attribs</b> command
+allows one to change the values of each attribute individually, while the
+<b>reset</b> command is not specifically designed for that function, but it
+has the side effect of setting all values in the current attribute values
+list to the <i>maxval</i> (see below).</p>
+
+<p>All values in the current attribute values list are initially set to the
+<i>maxval</i>.</p>
+</dd>
+<dt id="cmd_vertex"><b>vertex</b> <i>x</i> <i>y</i> <i>z</i> [<i>w</i>]</dt>
+<dd>
+<p>Adds a new vertex to the current vertex list (see the <b>mode</b>
+command above), assigning the values of the arguments to its respective
+coordinates, and the values in the current attribute values list (see the
+<b>attribs</b> command above) to the respective entries in the 
+attribute list associated with the vertex.</p>
+
+<p><i>x</i>, <i>y</i> and <i>z</i>
+must be integer values in the closed range [-32767, 32767].
+<i>x</i> and <i>y</i> represent, respectively, the column and row of the
+tuple which corresponds to the location of the vertex. Such values may
+correspond to tuples outside the limits of the frame buffer. The origin of
+the coordinate system is at the top-left tuple of the frame buffer. The
+X-axis goes from left to right, and the Y-axis from top to bottom. A
+negative value for <i>x</i> indicates a column that many tuples to the
+left of the leftmost column of the frame buffer.  Likewise, a negative
+value for <i>y</i> indicates a row that many tuples above the uppermost
+row of the frame buffer. <u>Observe that those coordinates correspond
+directly to a particular point in the coordinate system delineated
+above, regardless of whether you are trying to draw an image which is
+supposed to look as if viewed "in perspective" or not; <b>pamtris</b>
+does <i>not</i> "warp" the coordinates you give in any way.</u>
+Therefore, if you want to draw images in perspective, you must compute
+values for <i>x</i> and <i>y</i> already projected into <b>pamtris</b>'
+coordinate system yourself, using an external perspective projection
+method, prior to giving them to the program.</p>
+
+<p>The <i>z</i> parameter represents the  Z-coordinate of the vertex, which
+is used to compute depth values for tuples within the areas of rasterized
+triangles. Intuitively, smaller values for <i>z</i> mean "closer to
+the viewer," and larger ones mean "farther away from the viewer" (but
+remember: as said above, the <i>x</i> and <i>y</i> coordinates are not
+warped in any way, which implies that they are not affected by <i>z</i>;
+neither by the next parameter, for that matter).</p>
+
+<p>Optionally, you may provide a <i>w</i> parameter which represents a
+"perspective correction factor" used to properly interpolate vertex attributes
+across the area of the corresponding triangle. This must be an integer value
+in the closed range [1, 1048575]. If you don't provide a value for it, the
+default value of 1 is used (hence, if you want to nullify the effects of
+perspective correction on a triangle so the output samples are computed as if
+just linearly interpolated, simply do not provide a value for <i>w</i> for any
+vertex of the triangle). If, however, you intend to draw 3D geometry in
+perspective, you must provide an appropriate value for this parameter,
+otherwise the output images might look very wrong.  <i>w</i> was new in Netpbm
+10.85 (December 2018).
+
+<p>One way to compute <i>w</i> for a vertex in a image which is
+intended to look as in perspective is as follows. First, consider the
+<a href="https://en.wikipedia.org/wiki/Viewing_frustum">typical model</a>
+of the so-colled "viewing frustum" used to project vertices in 3D
+"world space" onto a planar "image space." The value of <i>w</i> for a
+vertex is simply the dot product<a href="#vertex_note">*</a> between the
+3D vector <b>r</b> and the 3D unit vector <b>n</b> (i. e. the length of
+the orthogonal projection of <b>r</b> on the line determined by <b>n</b>),
+in world units (such as pixels, centimeters, inches, etc.); where
+<b>r</b> is the vector which goes from the projection reference point
+(PRP, or "eye") to the vertex, and <b>n</b> is just the view-plane
+normal (VPN) of unit length which points away from the PRP.</p>
+
+<p>In case you are performing a mere multiplication of a 4D vector with
+x, y, z and w components by a so-called perspective projection 4x4 matrix
+in order to compute the projection of a vertex onto the image plane,
+then you may supply for <i>w</i> a value which is directly proportional
+to the absolute value of the w component of the resulting vector.</p>
+
+<p><a id="vertex_note" href="#vertex_note">*</a>
+For any two 3D vectors <b>a</b> and <b>b</b>, with respective
+real scalar components a<sub>x</sub>, a<sub>y</sub>, a<sub>z</sub> and
+b<sub>x</sub>, b<sub>y</sub>, b<sub>z</sub>, the dot product between
+<b>a</b> and <b>b</b> is simply
+a<sub>x</sub> * b<sub>x</sub> +
+a<sub>y</sub> * b<sub>y</sub> +
+a<sub>z</sub> * b<sub>z</sub>.
+</p>
+</dd>
+
+<dt><b>print</b></dt>
+<dd>
+<p>This writes a PAM image to Standard Output whose raster is a copy of the
+current contents of the image buffer. The values of the WIDTH and HEIGHT
+fields are the same as the width and height, respectively, of the frame
+buffer, which were given on the command line during program invocation. The
+MAXVAL field is equal to the current maxval; the DEPTH field is equal to
+the current value of <i>num_attribs</i> + 1; and the TUPLTYPE field is
+equal to the current tupletype.</p>
+
+<p>This command has no effect upon the current drawing state. E. g. it does
+not modify the current drawing mode, the current vertex list, etc.</p>
+
+<p>One may issue an arbitrary number of <b>print</b> commands at different
+positions in the input instruction sequence to produce a multi-image PAM
+stream.</p>
+</dd>
+<dt><b>clear</b> [ image | depth ]</dt>
+<dd>
+<p>Clears the frame buffer. That is, all samples in the image buffer are once
+again set to 0, and all entries in the depth buffer are once again set to the
+maximum permitted depth value.</p>
+
+<p>Optionally, one may provide an argument to only clear either the image
+buffer or the depth buffer individually, while leaving the other intact. With
+the <b>image</b> argument, only the image buffer is cleared; with the
+<b>depth</b> argument, only the depth buffer is cleared. Instead of full
+argument names, one may provide a minimum unique abbreviation, which has the
+same effect. The single character <b>z</b> is also accepted as an alias for
+<b>depth</b>.</p>
+
+<p>Like the <b>print</b> command, this command has no effect upon the
+current drawing state either.</p>
+</dd>
+
+<dt><b>reset</b> <i>maxval</i> <i>num_attribs</i> [<i>tupletype</i>]</dt>
+<dd>
+<p>This updates the current maxval and number of attributes per vertex
+(num_attribs), resetting the <u>image</u> buffer with a new maxval and number
+of samples per tuple while at it. The parameter <i>maxval</i> must be an
+integer in the closed range [1, 65535], and <i>num_attribs</i> must be an
+integer in the closed range [1, 20].</p>
+
+<p>Optionally, after the second argument, one may provide a string to be
+assigned to the current <i>tupletype</i>. The string goes from the first
+character after the second argument which is not white space and continues
+until (and including) the last character before the end of the line which is
+not white space.  If a new tupletype is not provided, or the provided string
+is longer than 255 characters, the empty string is assigned to the current
+<i>tupletype</i>.</p>
+
+<p>The side effects of running this command are</p>
+
+<ul>
+<li>
+The new image buffer is completely cleared once the command is executed.
+</li>
+<li>
+All values in the current attribute values list are set to the new maxval.
+</li>
+<li>
+The current vertex list is reset.
+</li>
+</ul>
+
+<p>However, it does not touch the depth buffer: it is left the same way as it
+was found before the command. Also the drawing mode remains the same (e. g. if
+<b>pamtris</b> was in FAN mode, it will continue in that same mode, etc.).</p>
+
+<p>If this command is given with an invalid value for <i>maxval</i> or
+<i>num_attribs</i>, it is ignored and therefore none of the above side
+effects apply, nor do the current maxval, num_attribs or tupletype change at
+all.</p>
+
+<p>It is permissible to give a value for <i>maxval</i> and <i>num_attribs</i>
+equal to the current maxval and num_attribs, respectively, although the above
+side effects will still apply even in such cases.</p>
+
+<p>Since this command deals with memory allocation, it may fail to execute
+successfully. If that happens, no lines of input will be read anymore and
+<b>pamtris</b> will be terminated as if the <b>quit</b> command was given.</p>
+<dt><b>quit</b></dt>
+<dd>
+<p>This terminates <b>pamtris</b>. The program will not read any more lines of
+input after this command, and ignores any further tokens on the
+same line as it.</p>
+</dd>
+
+</dl>
+
+<h2 id="tips">TIPS</h2>
+
+<h3>Texturing</h3>
+
+<p>It is possible to apply so-called "textures" to images produced with
+<b>pamtris</b> by using a pair of vertex attributes as texture
+coordinates, then using <a href="pamchannel.html"><b>pamchannel</b></a> to
+select the appropriate channels in the output image(s), and finally
+processing the result through <a href="pamlookup.html"><b>pamlookup</b></a>,
+providing the desired texture file as a "lookup table."  If you are drawing
+pictures in perspective, make sure to provide adequate values for the
+<i>w</i> parameter to your vertex commands
+(<a href="#cmd_vertex">see above</a>) so the resulting samples in
+the images produced by <b>pamtris</b> are perspective-correct.</p>
+
+<p>You might want to consider using
+<a href="pnmtile.html"><b>pnmtile</b></a> to make textures which are
+inteded to be "repeated" along triangle meshes.</p>
+
+<p>Since the <i>w</i> parameter to the <b>vertex</b> command was new in Netpbm
+10.85 (December 2018), it is not really possible to achieve
+perspective-correct texturing before that.
+
+
+<h3>Anti-aliased edges</h3>
+
+<p><b>pamtris</b> performs no anti-aliasing on triangle edges by itself.
+However, it is possible to obtain anti-aliased images through a
+"super-sampling" approach: draw your image(s) at a size larger than
+the desired final size, and then, when all post-processing is done,
+down-scale the final image(s) to the desired size. Drawing images with
+twice the desired width and height, then down-scaling them to the
+desired size using a quadratic filter, might produce results which are
+often good enough.</p>
+
+
+<h2 id="seealso">SEE ALSO</h2>
+
+<b><a href="pampick.html">pampick</a></b>
+<b><a href="pamchannel.html">pamchannel</a></b>
+<b><a href="pamstack.html">pamstack</a></b>
+<b><a href="pamlookup.html">pamlookup</a></b>
+<b><a href="pamarith.html">pamarith</a></b>
+<b><a href="pamscale.html">pamscale</a></b>
+<b><a href="pamdepth.html">pamdepth</a></b>
+<b><a href="pamexec.html">pamexec</a></b>
+<b><a href="pam.html">pam</a></b>
+
+<h2 id="author">AUTHOR</h2>
+
+<b>pamtris</b> was originally written by
+<a href="mailto:lucaslunar32@hotmail.com">Lucas Brunno Luna</a>.
+The author is grateful to Bryan Henderson for offering suggestions regarding
+usability.
+
+<h2 id="history">HISTORY</h2>
+
+<p><b>pamtris</b> was new in Netpbm 10.84 (September 2018).
+
+</p><hr>
+<h2 id="index">Table Of Contents</h2>
+<ul>
+<li><a href="#synopsis">SYNOPSIS</a>
+<li><a href="#description">DESCRIPTION</a>
+<li><a href="#examples">EXAMPLES</a>
+<ul>
+  <li><a href="#examples_fan">Fan Mode</a>
+  <li><a href="#examples_strip">Strip Mode</a>
+  <li><a href="#examples_triangles">Triangle Mode</a>
+  <li><a href="#pamtris_c">Meta-programming</a></li>
+  </ul>
+<li><a href="#options">OPTIONS</a>
+<li><a href="#instruction_code">INSTRUCTION CODE</a>
+<li><a href="#tips">TIPS</a>
+<li><a href="#seealso">SEE ALSO</a>
+<li><a href="#author">AUTHOR</a>
+</ul>
+
+
+
+</body></html>

@@ -8,4 +8,6 @@ all:
 
 fetch:
 	rm -f *.1 *.3 *.5 *.gif *.png *.jpg
-	svn export http://svn.code.sf.net/p/netpbm/code/userguide .
+	svn export http://svn.code.sf.net/p/netpbm/code/userguide tmp
+	mv tmp/* .
+	rmdir tmp
