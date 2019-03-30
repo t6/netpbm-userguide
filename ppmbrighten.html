@@ -2,7 +2,7 @@
 <HTML><HEAD><TITLE>Ppmbrighten User Manual</TITLE></HEAD>
 <BODY>
 <H1>ppmbrighten</H1>
-Updated: 26 October 2012
+Updated: 12 January 2019
 <BR>
 <A HREF="#index">Table Of Contents</A>
 
@@ -13,8 +13,8 @@ ppmbrighten - change a PPM image's Saturation and Value
 
 <b>ppmbrighten</b>
 [<b>-normalize</b>]
-[<b>-saturation </b>[<b>+</b>|<b>-</b><i>saturation_percent</i>]]
-[<b>-value </b>[<b>+</b>|<b>-</b><i>value_percent</i>]]
+[<b>-saturation=</b>[<b>+</b>|<b>-</b><i>saturation_percent</i>]]
+[<b>-value=</b>[<b>+</b>|<b>-</b><i>value_percent</i>]]
 <i>ppmfile</i>
 
 <P>Minimum unique abbreviation of option is acceptable.  You may use
@@ -78,26 +78,34 @@ For <em>decreasing</em> brightness, <b>pamfunc</b> should do the same thing as
 color of each pixel to bring it a specified per centage closer to white.
 This increases the value and saturation.
 
+<p><b>pambrighten</b> is the same as <b>ppmbrighten</b>, except that it
+recognizes the various Netpbm image formats rather than treating them all as
+PPM.  The output format is the same as the input format and extra channels in
+a PAM image (such as a transparency channel) get passed through.
+
+<p>If you want to modify the Hues in the image, use <b>pamhue</b>.
+
+  
 <H2 id="examples">EXAMPLES</H2>
 <p>To double the Value of each pixel:
 <pre>
-ppmbrighten -v 100
+ppmbrighten -value=100
 </pre>
 
 <p>To double the Saturation and halve the Value of each pixel:
 <pre>
-ppmbrighten -s 100 -v -50
+ppmbrighten -saturation=+100 -value=-50
 </pre>
 
 <H2 id="options">OPTIONS</H2>
 
 <DL>
-<DT><b>-value </b><i>value_percent</i>
+<DT><b>-value=</b><i>value_percent</i>
 
 <DD>This option specifies the amount, as a per centage, by which you want
 to change the Value of each pixel.  It may be negative.
 
-<DT><b>-saturation </b><i>value_percent</i>
+<DT><b>-saturation=</b><i>value_percent</i>
 
 <DD>This option specifies the amount, as a per centage, by which you want
 to change the Saturation of each pixel.  It may be negative.
@@ -105,10 +113,8 @@ to change the Saturation of each pixel.  It may be negative.
 
 <DT><b>-normalize</b>
 
-<DD>This option causes <b>ppmbrighten</b> to linearly remap the Values
-of the pixels to cover the range 0 to 1.  The option name is wrong --
-this operation is not normalization (it was named in error and the
-name has been kept for backward compatibility).
+<DD>This option causes <b>ppmbrighten</b> to normalize contrast by linearly
+remapping the Values of the pixels to cover the range 0 to 1.
 
 <p><b>ppmbrighten</b> applies the brightening that you specify with 
 the <b>-value</b> option <em>after</em> the remapping.
@@ -125,9 +131,11 @@ with a bogus error message.
 <A HREF="ppmdim.html">ppmdim</A>, 
 <A HREF="pamfunc.html">pamfunc</A>, 
 <A HREF="ppmflash.html">ppmflash</A>, 
+<A HREF="ppmflash.html">pambrighten</A>, 
 <A HREF="pamaltsat.html">pamaltsat</A>, 
 <A HREF="pamdepth.html">pamdepth</A>, 
 <A HREF="pnmgamma.html">pnmgamma</A>, 
+<A HREF="pamhue.html">pamhue</A>, 
 <A HREF="ppmhist.html">ppmhist</A>, 
 <A HREF="ppm.html">ppm</A>
 
