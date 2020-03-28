@@ -2,7 +2,7 @@
 <HTML><HEAD><TITLE>Pamcut User Manual</TITLE></HEAD>
 <BODY>
 <H1>pamcut</H1>
-Updated: 30 April 2017
+Updated: 04 October 2019
 <BR>
 <A HREF="#index">Table Of Contents</A>
 
@@ -59,7 +59,7 @@ as output.
 edges to crop off and discard, or a combination.
 
 <p>To request edges be cropped off, use options <b>-cropleft</b>,
-<b>cropright</b>, <b>croptop</b>, and <b>-cropbottom</b> to indicate how many
+<b>-cropright</b>, <b>-croptop</b>, and <b>-cropbottom</b> to indicate how many
 rows or columns to discard.
 
 <p>For example, <b>-cropleft=50 -cropright=200</b> means to discard the
@@ -87,18 +87,17 @@ read, more expressive, and allow you to use defaults.
 <P>If you use both options and arguments, the two specifications get
 mixed in an unspecified way.
 
-<P>To use arguments, specify all four of the <I>left</I>,
-<I>top</I>, <I>width</I>, and <I>height</I> arguments.  <I>left</I>
-and <I>top</I> have the same effect as specifying them as the argument
-of a <B>-left</B> or <B>-top</B> option, respectively.  <I>width</I>
-and <I>height</I> have the same effect as specifying them as the
-argument of a <B>-width</B> or <B>-height</B> option, respectively,
-where they are positive.  Where they are not positive, they have the
-same effect as specifying one less than the value as the argument to a
-<B>-right</B> or <B>-bottom</B> option, respectively.  (E.g.
-<I>width</I> = 0 makes the cut go all the way to the right edge).
-Before July 2000, negative numbers were not allowed for <I>width</I>
-and <I>height</I>.
+<P>To use arguments, specify all four of the <I>left</I>, <I>top</I>,
+<I>width</I>, and <I>height</I> arguments.  <I>left</I> and <I>top</I> have
+the same effect as specifying them as the argument of a <B>-left</B> or
+<B>-top</B> option, respectively.  <I>width</I> and <I>height</I> have the
+same effect as specifying them as the argument of a <B>-width</B> or
+<B>-height</B> option, respectively, where they are positive.  Where they are
+not positive, they have the same effect as specifying one less than the value
+as the argument to a <B>-right</B> or <B>-bottom</B> option, respectively.
+(E.g. <I>width</I> = 0 makes the cut go all the way to the right edge).
+Before July 2000, negative numbers were not allowed for <I>width</I> and
+<I>height</I>.
 
 <P>Input is from Standard Input if you don't specify the input file
 <I>pnmfile</I>.
@@ -165,9 +164,9 @@ right, top, or bottom edges, respectively.
 <p>The value must not be negative.
 
 <p>These option were new in Netpbm 10.85 (December 2018).  Before that, you
-can achieve the same thing with a negative value for <b>-left</b>, etc.
-Remember to subtract one; e.g. the equivalent of <b>-cropright=1</b> is
-<b>-right=-2</b>.
+can achieve the same thing with <b>-left</b>, <b>top</b>, and negative values
+for <b>-right</b> and <b>-bottom</b>.  Remember to subtract one in the latter
+case; e.g. the equivalent of <b>-cropright=1</b> is <b>-right=-2</b>.
   
 <DT><B>-pad</B>
 
