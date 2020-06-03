@@ -1,5 +1,5 @@
 all:
-	python2.7 ../netpbm/buildtools/makeman *.html
+	python3.7 ../netpbm/buildtools/makeman *.html
 	mv index.1 netpbm.1
 # Remove broken manpages
 	rm directory.1 liberror.1 libnetpbm_dir.1 libsystem.3 libtmpfile.3 \
